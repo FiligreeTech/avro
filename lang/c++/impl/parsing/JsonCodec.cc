@@ -200,6 +200,8 @@ class JsonDecoder : public Decoder {
     double decodeDouble();
     void decodeString(string& value);
     void skipString();
+    size_t decodeBytesSize();
+    void decodeBytesData(uint8_t *buffer, size_t len);
     void decodeBytes(vector<uint8_t>& value);
     void skipBytes();
     void decodeFixed(size_t n, vector<uint8_t>& value);
@@ -221,6 +223,7 @@ public:
         handler_(in_),
         parser_(JsonGrammarGenerator().generate(s), NULL, handler_) { }
 
+    vector<uint8_t> lastBytesValue_;
 };
 
 template <typename P>
@@ -309,6 +312,27 @@ void JsonDecoder<P>::skipString()
 static vector<uint8_t> toBytes(const string& s)
 {
     return vector<uint8_t>(s.begin(), s.end());
+}
+
+template <typename P>
+size_t JsonDecoder<P>::decodeBytesSize()
+{
+    parser_.advance(Symbol::sBytes);
+    expect(JsonParser::tkString);
+    lastBytesValue_ = toBytes(in_.stringValue());
+    return lastBytesValue_.size();
+}
+
+template <typename P>
+void JsonDecoder<P>::decodeBytesData(uint8_t *buffer, size_t len)
+{
+  if (len != lastBytesValue_.size()) {
+    throw Exception("Incorrect buffer size for decodeBytesData");
+  }
+  if(len > 0) {
+    memcpy(buffer, &lastBytesValue_[0], len);
+  }
+  lastBytesValue_.clear();
 }
 
 template <typename P>
@@ -700,4 +724,3 @@ EncoderPtr jsonPrettyEncoder(const ValidSchema& schema)
 }
 
 }   // namespace avro
-

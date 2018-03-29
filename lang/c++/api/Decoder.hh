@@ -35,7 +35,7 @@
 /// This class has two types of funtions.  One type of functions support
 /// decoding of leaf values (for example, decodeLong and
 /// decodeString). These functions have analogs in Encoder.
-/// 
+///
 /// The other type of functions support decoding of maps and arrays.
 /// These functions are arrayStart, startItem, and arrayEnd
 /// (and similar functions for maps).
@@ -86,6 +86,14 @@ public:
 
     /// Skips a string on the current stream.
     virtual void skipString() = 0;
+
+    /// Decodes the number of bytes following in a
+    virtual size_t decodeBytesSize() = 0;
+
+    /// Decodes the bytes data into an allocated buffer of length len, which
+    /// must contain at least as many bytes as was returned by the previous
+    /// \ref decodeBytesSize() call.
+    virtual void decodeBytesData(uint8_t *buffer, size_t len) = 0;
 
     /// Decodes arbitray binary data from the current stream.
     std::vector<uint8_t> decodeBytes() {

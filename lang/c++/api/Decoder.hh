@@ -93,6 +93,15 @@ public:
         return result;
     }
 
+    /// Decodes the number of bytes that will be read in a subsequent
+    /// decodeBytesData call.
+    virtual size_t decodeBytesSize() = 0;
+
+    /// Decodes the bytes data into an allocated buffer of length len, which
+    /// must contain at least as many bytes as was returned by the previous
+    /// \ref decodeBytesSize() call.
+    virtual void decodeBytesData(uint8_t *buffer, size_t len) = 0;
+
     /// Decodes arbitrary binary data from the current stream and puts it
     /// in value.
     virtual void decodeBytes(std::vector<uint8_t> &value) = 0;

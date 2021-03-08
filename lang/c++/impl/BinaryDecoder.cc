@@ -37,6 +37,8 @@ class BinaryDecoder : public Decoder {
     double decodeDouble() override;
     void decodeString(std::string &value) override;
     void skipString() override;
+    size_t decodeBytesSize();
+    void decodeBytesData(uint8_t *buffer, size_t len);
     void decodeBytes(std::vector<uint8_t> &value) override;
     void skipBytes() override;
     void decodeFixed(size_t n, std::vector<uint8_t> &value) override;
@@ -129,6 +131,19 @@ void BinaryDecoder::skipString() {
     in_.skipBytes(len);
 }
 
+size_t BinaryDecoder::decodeBytesSize()
+{
+    size_t len = decodeInt();
+    return len;
+}
+
+void BinaryDecoder::decodeBytesData(uint8_t *buffer, size_t len)
+{
+    if(len > 0) {
+        in_.readBytes(buffer, len);
+    }
+}
+
 void BinaryDecoder::decodeBytes(std::vector<uint8_t> &value) {
     size_t len = doDecodeLength();
     value.resize(len);
@@ -219,4 +234,3 @@ int64_t BinaryDecoder::doDecodeLong() {
 }
 
 }   // namespace avro
-

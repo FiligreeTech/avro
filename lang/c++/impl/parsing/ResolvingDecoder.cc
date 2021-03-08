@@ -323,7 +323,7 @@ ProductionPtr ResolvingGrammarGenerator::doGenerate2(
                 m[key] = ProductionPtr();
                 ProductionPtr result = resolveRecords(writer, reader, m, m2);
                 m[key] = result;
-		return make_shared<Production>(1, Symbol::indirect(result));
+                return make_shared<Production>(1, Symbol::indirect(result));
             }
             break;
 
@@ -496,6 +496,8 @@ class ResolvingDecoderImpl : public ResolvingDecoder
     double decodeDouble();
     void decodeString(string& value);
     void skipString();
+    size_t decodeBytesSize();
+    void decodeBytesData(uint8_t *buffer, size_t len);
     void decodeBytes(vector<uint8_t>& value);
     void skipBytes();
     void decodeFixed(size_t n, vector<uint8_t>& value);
@@ -591,6 +593,19 @@ void ResolvingDecoderImpl<P>::skipString()
 {
     parser_.advance(Symbol::sString);
     base_->skipString();
+}
+
+template <typename P>
+size_t ResolvingDecoderImpl<P>::decodeBytesSize()
+{
+     parser_.advance(Symbol::sBytes);
+     return base_->decodeBytesSize();
+}
+
+template <typename P>
+void ResolvingDecoderImpl<P>::decodeBytesData(uint8_t *buffer, size_t len)
+{
+     base_->decodeBytesData(buffer, len);
 }
 
 template <typename P>
@@ -737,4 +752,3 @@ ResolvingDecoderPtr resolvingDecoder(const ValidSchema& writer,
 }
 
 }   // namespace avro
-

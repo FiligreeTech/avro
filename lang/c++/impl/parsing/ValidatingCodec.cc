@@ -122,7 +122,7 @@ ProductionPtr ValidatingGrammarGenerator::doGenerate(const NodePtr& n,
     case AVRO_MAP:
         {
             ProductionPtr pp = doGenerate(n->leafAt(1), m);
-			ProductionPtr v(new Production(*pp));
+                        ProductionPtr v(new Production(*pp));
             v->push_back(Symbol::stringSymbol());
             ProductionPtr result = make_shared<Production>();
             result->push_back(Symbol::mapEndSymbol());
@@ -182,6 +182,8 @@ class ValidatingDecoder : public Decoder {
     double decodeDouble();
     void decodeString(string& value);
     void skipString();
+    size_t decodeBytesSize();
+    void decodeBytesData(uint8_t *buffer, size_t len);
     void decodeBytes(vector<uint8_t>& value);
     void skipBytes();
     void decodeFixed(size_t n, vector<uint8_t>& value);
@@ -266,6 +268,19 @@ void ValidatingDecoder<P>::skipString()
 {
     parser.advance(Symbol::sString);
     base->skipString();
+}
+
+template <typename P>
+size_t ValidatingDecoder<P>::decodeBytesSize()
+{
+    parser.advance(Symbol::sBytes);
+    return base->decodeBytesSize();
+}
+
+template <typename P>
+void ValidatingDecoder<P>::decodeBytesData(uint8_t *buffer, size_t len)
+{
+    base->decodeBytesData(buffer, len);
 }
 
 template <typename P>
@@ -588,4 +603,3 @@ EncoderPtr validatingEncoder(const ValidSchema& schema, const EncoderPtr& base)
 }
 
 }   // namespace avro
-
